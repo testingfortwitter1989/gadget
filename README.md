@@ -1,0 +1,46 @@
+gadget
+======
+<Module>
+<ModulePrefs title="Twitter" description="User Info" height="50" author="DJ Adams" author_email="dj.adams@pobox.com" author_location="Manchester">
+<Require feature="dynamic-height"/>
+<Require feature="google.contentmatch"><Param name="extractors">
+        google.com:SubjectExtractor
+      </Param></Require></ModulePrefs>
+<Content type="html" view="card">
+      <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js'></script>
+      <script type="text/javascript">
+
+        // Expect subject as first element keyed by 'subject'
+        matches = google.contentmatch.getContentMatches();
+        jQuery.post('http://qmacro-postbin.appspot.com/104hc65', 'matches:' + JSON.stringify(matches));
+        var subject = matches[0]['subject'];
+
+        // Only do something if we actually have a subject to work with
+        if (subject) {
+
+          // Pick out the twitter @handles and process them
+          var handles = subject.match(/@[a-z0-9_]+/g);
+
+          if (handles) {
+            $('head').append('<link rel="stylesheet" href="http://qmacro-contextual.appspot.com/css/twitter-user-info.css" />');
+            for (var i = 0; i < handles.length; i++) {
+  		
+              var user_resource = 'http://api.twitter.com/1/statuses/user_timeline/' + handles[i] + '.json?callback=twitterCallback2&count=1';
+              $.getJSON(user_resource, function(data) {
+                jQuery.post('http://qmacro-postbin.appspot.com/104hc65', 'userinfo:' + JSON.stringify(data));
+                var loc = "";
+                if (data.location) { 
+                  loc = ' (' + data.location + ')';
+                }
+                var tw_info = '<table border="0">' + '<tr>' + '<td>' + '<a href="' + data.url + '">' + '<img src="' + data.profile_image_url + '" />' + '</a>' + '</td>' + '<td class="userinfo">' + '<a href="http://twitter.com/' + data.screen_name + '">@' + data.screen_name + '</a>' + '<br />' + data.name + loc + '<br />' + data.description + '</td>' + '</tr></table>';
+                jQuery(tw_info).appendTo('body');
+                jQuery.post('http://qmacro.appspot.com/logger', 'log=' + data.screen_name);
+              });
+            }
+            gadgets.window.adjustHeight(100);
+          }
+        }
+          
+      </script>
+    </Content>
+</Module>
