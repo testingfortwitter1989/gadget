@@ -1,5 +1,4 @@
-gadget
-======
+<?xml version="1.0" encoding="UTF-8"?>
 <Module>
 <ModulePrefs title="Twitter" description="User Info" height="50" author="DJ Adams" author_email="dj.adams@pobox.com" author_location="Manchester">
 <Require feature="dynamic-height"/>
